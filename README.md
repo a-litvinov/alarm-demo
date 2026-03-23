@@ -1,73 +1,99 @@
-# React + TypeScript + Vite
+# WakeUpCampus — Демо умного будильника для студентов
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Интерактивный демо-прототип мобильного приложения **WakeUpCampus** — умного будильника, который помогает студентам просыпаться вовремя с помощью расписания занятий и социального механизма «Хранителей».
 
-Currently, two official plugins are available:
+## Возможности
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Импорт расписания занятий и автоматический расчёт времени будильника
+- Настройка времени подготовки, мелодии и типа задания
+- Механизм «Хранитель» — друг, который помогает разбудить
+- Задания для отключения будильника (математика или «тряска»)
+- Эскалация при проспании — уведомление хранителю
+- Система кармы и рейтинга
+- Управление списком друзей и заявками
 
-## React Compiler
+## Стек технологий
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React + Vite + TypeScript** — быстрая разработка, работает в любом браузере
+- **Tailwind CSS v4** — тёмная тема «ночной кампус»
+- **Zustand** — единый стор с 7 слайсами для управления состоянием
+- **Vitest + React Testing Library** — 70 тестов
+- **Без бэкенда** — все данные мокируются локально
 
-## Expanding the ESLint configuration
+## Установка и запуск
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Приложение откроется на `http://localhost:5173/`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Сборка
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+### Тесты
+
+```bash
+npm test
+```
+
+## Архитектура
+
+### Структура проекта
+
+```
+src/
+  types/           # Типы: расписание, будильник, пользователь, карма, уведомления
+  store/
+    useAppStore.ts # Корневой Zustand-стор
+    slices/        # 7 слайсов: demo, schedule, alarm, keeper, friends, karma, notifications
+  mock/            # Мок-данные: расписание, пользователи, мелодии
+  components/
+    layout/        # AppShell, PhoneFrame, StatusBar, BottomTabBar, DemoControls
+    common/        # Button, Card, Modal, Toast, Toggle, Avatar
+    schedule/      # Экран расписания, импорт, ручной ввод
+    alarm/         # Главный экран, активный будильник, задания
+    keeper/        # Назначение хранителя, запрос, экран пробуждения
+    friends/       # Список друзей, добавление
+    profile/       # Профиль, карма, история
+  hooks/           # useCountdown, useAlarmSimulation
+  utils/           # Расчёт времени, генерация задач
+```
+
+### Навигация
+
+Навигация реализована через состояние (без react-router):
+- **Вкладки**: Главная, Расписание, Друзья, Профиль
+- **Оверлеи**: назначение хранителя, активный будильник, экран пробуждения хранителя
+- **Роли**: переключение Якорь/Хранитель меняет вид, но не данные — единый стор обеспечивает мгновенную синхронизацию
+
+## Прохождение демо
+
+Телефон (375x812) слева, панель управления справа.
+
+1. **Расписание** → **Импорт из календаря** → **Разрешить доступ**
+2. **Главная** — увидите авторасчёт будильника, настройте мелодию/задание/время сборов
+3. **Назначить хранителя** → выберите Марину
+4. Панель: переключите роль на **Хранитель** → **Принять** запрос
+5. Панель: **Сработать будильник** → решите задачу (happy path) или **Промотать 5 мин** (проспал)
+6. Если проспал: переключитесь на **Хранитель** → **Позвонил, встал** / **Не отвечает**
+7. **Профиль** — карма обновилась
+8. Панель: **Сбросить демо** для повторного прохождения
+
+## Реализованные сценарии использования
+
+| UC | Название | Описание |
+|----|----------|----------|
+| UC-1 | Импорт расписания | Загрузка расписания из календаря или ручной ввод |
+| UC-2 | Настройка будильника | Авторасчёт времени, выбор мелодии, задания, времени подготовки |
+| UC-3 | Назначение хранителя | Выбор друга-хранителя из списка |
+| UC-4 | Ответ хранителя | Принятие или отклонение запроса на пробуждение |
+| UC-5 | Срабатывание будильника | Полноэкранный оверлей с заданием и обратным отсчётом |
+| UC-6 | Эскалация при проспании | Автоуведомление хранителю после истечения таймера |
+| UC-7 | Подтверждение пробуждения | Хранитель подтверждает или отклоняет пробуждение |
+| UC-8 | Управление друзьями | Добавление, удаление, заявки в друзья |
+| UC-9 | Карма и рейтинг | Начисление и списание кармы, история |
